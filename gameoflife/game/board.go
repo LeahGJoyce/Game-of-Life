@@ -42,10 +42,23 @@ func (b Bitboard) Get(coord Coord) (bool, error) {
 	return (b & (Bitboard(1) << pos)) != 0, nil
 }
 
+func (b *Bitboard) Set(coord Coord, v bool) error {
+	if coord.X > TileWidth-1 || coord.Y > TileWidth-1 {
+		// throw an error as x, y should be in range [0, 7] for an 8x8 bitboard
+		return errors.New(fmt.Sprintf("Bitboard.Set recieved invalid coordinates (%d, %d)", coord.X, coord.Y))
+	}
+	pos := coord.Y*TileWidth + coord.X // calculate the bit position
+	if v {
+		*b |= Bitboard(1) << pos // Set the bit to 1
+	} else {
+		*b &= ^(Bitboard(1) << pos) // Set the bit to 0
+	}
+	return nil
+}
 func (b *Bitboard) Toggle(coord Coord) error {
 	if coord.X > TileWidth-1 || coord.Y > TileWidth-1 {
 		// throw an error as x, y should be in range [0, 7] for an 8x8 bitboard
-		return errors.New(fmt.Sprintf("Bitboard.ToggleSquare recieved invalid coordinates (%d, %d)", coord.X, coord.Y))
+		return errors.New(fmt.Sprintf("Bitboard.Toggle recieved invalid coordinates (%d, %d)", coord.X, coord.Y))
 	}
 	pos := coord.Y*TileWidth + coord.X // calculate the bit position
 	*b ^= Bitboard(1) << pos
@@ -69,9 +82,9 @@ func (b CompositeBoard) String() string {
 				output = output + fmt.Sprintf(" # ")
 			}
 			if sym {
-				output = output + fmt.Sprintf(" 1 ")
+				output = output + fmt.Sprintf(" ■ ")
 			} else {
-				output = output + fmt.Sprintf(" 0 ")
+				output = output + fmt.Sprintf(" □ ")
 			}
 
 		}
@@ -90,6 +103,14 @@ func (b *CompositeBoard) Get(coord Coord) (bool, error) {
 	return b.Tiles[boardCoord.X][boardCoord.Y].Get(bitCoord)
 }
 
+func (b *CompositeBoard) Set(coord Coord, v bool) error {
+	if coord.X >= b.BoardWidth || coord.Y >= b.BoardHeight {
+		return errors.New(fmt.Sprintf("CompositeBoard.Set received invalid coordinates (board: %d, %d)", coord.X, coord.Y))
+	}
+	boardCoord, bitCoord := convertCoordinates(coord)
+
+	return b.Tiles[boardCoord.X][boardCoord.Y].Set(bitCoord, v)
+}
 func (b *CompositeBoard) Toggle(coord Coord) error {
 	if coord.X >= b.BoardWidth || coord.Y >= b.BoardHeight {
 		return errors.New(fmt.Sprintf("CompositeBoard.Toggle received invalid coordinates (board: %d, %d)", coord.X, coord.Y))
@@ -113,9 +134,9 @@ func NewCompositeBoard(width, height int64) CompositeBoard {
 		boardHeight++
 	}
 
-	tiles := make([][]Bitboard, boardHeight)
+	tiles := make([][]Bitboard, boardWidth)
 	for i := range tiles {
-		tiles[i] = make([]Bitboard, boardWidth)
+		tiles[i] = make([]Bitboard, boardHeight)
 		// Initialize each tile as a Bitboard with all bits set to 0
 		for j := range tiles[i] {
 			tiles[i][j] = Bitboard(0)

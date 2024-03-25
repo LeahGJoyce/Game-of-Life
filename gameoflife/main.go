@@ -10,9 +10,9 @@ import (
 func startHandler(w http.ResponseWriter, r *http.Request) {
 	// Configuration for the game, potentially extracted from the request
 	config := game.GameConfig{
-		Width:    10, // Example values, adjust as needed
-		Height:   10,
-		MaxTicks: 20,
+		Width:    20, // Example values, adjust as needed
+		Height:   20,
+		MaxTicks: 30,
 	}
 
 	// Create a channel for game state updates
