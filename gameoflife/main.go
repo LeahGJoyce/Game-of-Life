@@ -5,9 +5,6 @@ import (
 	"gameoflife/game"
 	"gameoflife/publisher"
 	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 func startHandler(w http.ResponseWriter, r *http.Request) {
@@ -32,8 +29,9 @@ func startHandler(w http.ResponseWriter, r *http.Request) {
 			gameBoardStr := gameInstance.Board.String()
 
 			// Now use gameIDStr as part of the stream name or in messages
-			fmt.Printf("Publishing update for game %s: %s\n", gameIDStr, gameBoardStr)
-			publisher.PublishMessage(gameIDStr, gameBoardStr)
+			fmt.Printf("Publishing update for game %s\n%s\n", gameIDStr, gameBoardStr)
+			env := publisher.GetEnv()
+			publisher.PublishMessage(env, gameIDStr, gameBoardStr)
 		}
 	}()
 
@@ -46,9 +44,6 @@ func main() {
 	fs := http.FileServer(http.Dir("web/"))
 	http.Handle("/", fs)
 
-	// Setup signal handling for a graceful shutdown.
-	stopChan := make(chan os.Signal, 1)
-	signal.Notify(stopChan, os.Interrupt, syscall.SIGTERM)
 	// Set up other routes, e.g., for your API endpoints
 	http.HandleFunc("/start", startHandler)
 
@@ -57,12 +52,8 @@ func main() {
 		fmt.Printf("Error starting server: %s\n", err)
 	}
 
-	// Wait for interrupt signal.
-	<-stopChan
-
-	// Begin cleanup sequence.
-	publisher.CleanupProducers()
-	publisher.CleanupEnvironment()
-
-	fmt.Println("Application shutdown gracefully")
+	// Cleanup Publisher
+	env := publisher.GetEnv()
+	err := env.Close()
+	publisher.CheckErr(err)
 }
