@@ -6,14 +6,16 @@ import (
 	"github.com/google/uuid"
 )
 
+
 type GameConfig struct {
+	Id       uuid.UUID
 	Width    int
 	Height   int
 	MaxTicks int
 }
 
 func InitializeGame(config GameConfig, gameUpdates chan<- GameInstance) {
-	gameInstance := NewGame(int64(config.Width), int64(config.Height), config.MaxTicks) // TODO: Make this use the config later
+	gameInstance := NewGame(config.Id, int64(config.Width), int64(config.Height), config.MaxTicks)
 	// Karel starting state
 	// gameInstance.Board.Toggle(Coord{X: 7, Y: 4})
 	// gameInstance.Board.Toggle(Coord{X: 12, Y: 4})
@@ -71,9 +73,9 @@ type GameInstance struct {
 }
 
 // NewGame initializes a new game with the specified configuration and generates a UUID.
-func NewGame(width, height int64, maxTicks int) *GameInstance {
+func NewGame(Id uuid.UUID, width, height int64, maxTicks int) *GameInstance {
 	return &GameInstance{
-		Id:          uuid.New(), // Generate a new UUID
+		Id:          Id,
 		Width:       width,
 		Height:      height,
 		MaxTicks:    maxTicks,

@@ -5,12 +5,15 @@ import (
 	"gameoflife/game"
 	"gameoflife/publisher"
 	"net/http"
+
+	"github.com/google/uuid"
 )
 
 func startHandler(w http.ResponseWriter, r *http.Request) {
-	// Configuration for the game, potentially extracted from the request
+	gameId := uuid.New()
 	config := game.GameConfig{
-		Width:    20, // Example values, adjust as needed
+		Id:       gameId,
+		Width:    20,
 		Height:   20,
 		MaxTicks: 30,
 	}

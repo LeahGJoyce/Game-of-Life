@@ -46,7 +46,8 @@ func GetEnv() *stream.Environment {
 				SetPort(port).
 				SetUser(user).
 				SetPassword(password).
-				SetMaxProducersPerClient(10))
+				SetMaxProducersPerClient(10).
+				SetMaxConsumersPerClient(10))
 		CheckErr(err)
 		env = newEnv
 	}
