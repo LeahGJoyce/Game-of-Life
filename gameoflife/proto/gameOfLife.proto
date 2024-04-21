@@ -6,10 +6,10 @@ message Board {
   string id = 1;                     // Board id
   int64 height = 2;                  // Height of the board
   int64 width = 3;                   // Width of the board
-  repeated Row Column = 4;           // An array of arrays. Accessing a cell will be Board[y][x]
+  repeated Row rows = 4;           // An array of arrays. Accessing a cell will be Board[y][x]
 
   message Row {
-    repeated bool Cell = 5;
+    repeated bool columns = 5;
   }
 }
 
