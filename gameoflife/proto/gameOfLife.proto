@@ -1,0 +1,22 @@
+syntax = "proto3";
+package gameoflife;
+option go_package = "../gameoflife/proto";
+
+message Board {
+  string id = 1;                     // Board id
+  int64 height = 2;                  // Height of the board
+  int64 width = 3;                   // Width of the board
+  repeated Row Column = 4;           // An array of arrays. Accessing a cell will be Board[y][x]
+
+  message Row {
+    repeated bool Cell = 5;
+  }
+}
+
+message Simulation {
+  string id = 1;         // Simulation id
+  int64 maxTicks = 2;    // Number of ticks in the simulation
+  int64 msPerTick = 3;   // Milliseconds per tick
+  int64 currentTick = 4; // The current tick of the simulation
+  Board board = 5;
+}
